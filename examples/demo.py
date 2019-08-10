@@ -19,7 +19,8 @@ def myhash(word):
 phrase = "No shenanigans during office hours"
 
 
-for w in phrase.split():
-    breakpoint()
-    h = myhash(w)
-    print(w, h)
+if __name__ == '__main__':
+    for w in phrase.split():
+        breakpoint()
+        h = myhash(w)
+        print(w, h)

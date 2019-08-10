@@ -23,6 +23,7 @@ def myhash(word):
 phrase = "No shenanigans during office hours"
 
 
-for w in phrase.split():
-    h = myhash(w)
-    bw.log(w, h)
+if __name__ == '__main__':
+    for w in phrase.split():
+        h = myhash(w)
+        bw.log(w, h)
