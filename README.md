@@ -37,6 +37,10 @@ env PYTHONBREAKPOINT=breakword.logbrk python yourscript.py
 env PYTHONBREAKPOINT=breakword.logbrk BREAKWORD=fish python yourscript.py
 ```
 
+Here's a screenshot to show what it looks like:
+
+![demo](https://raw.githubusercontent.com/breuleux/breakword/master/media/demo.png)
+
 
 ## Marginally-more-effort API
 
@@ -51,6 +55,8 @@ env PYTHONBREAKPOINT=breakword.logbrk BREAKWORD=fish python yourscript.py
 * `breakword.logbrk(**config)`: Calls `log` and then `brk`.
 
 * `breakword.set_default_logger(logger)`: Set the logging function to use (defaults to `print`)
+
+![demo](https://raw.githubusercontent.com/breuleux/breakword/master/media/demo2.png)
 
 
 ### Configuration
