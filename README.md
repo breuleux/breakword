@@ -47,12 +47,16 @@ Here's a screenshot to show what it looks like:
 
 * `breakword.log(*things, **config)`: Print a word and optionally other things after it.
 
-* `breakword.brk(word=None, **config)`: Sets a breakpoint to trigger after `log` printed out the given word. If `word` is None or not given, the `BREAKWORD` environment variable is consulted. If the variable is not set, nothing will happen.
+* `breakword.brk(word=None, **config)`: Sets a breakpoint to trigger after `log` printed out the given word. If `word` is `None` or not given, the `BREAKWORD` environment variable is consulted. If the variable is not set, nothing will happen.
   * This is equivalent to `breakword.after(word).breakpoint()`.
 
-* `breakword.after(word=None, **config)`: Returns an object that evaluates to `True` right after `log` printed out the given word. As with `brk`, if `word` is not given, the `BREAKWORD` environment variable is consulted.
+* `breakword.after(word=None, **config)`: Returns an object that evaluates to `True` right after `log` printed out the given word. As with `brk`, if `word` is `None` or not given, the `BREAKWORD` environment variable is consulted.
+
+* `breakword.word(**config)`: Returns the next word as a string. You can print it yourself, in which case it's basically like `log`, or you can store it in an object.
 
 * `breakword.logbrk(**config)`: Calls `log` and then `brk`.
+
+* `breakword.wordbrk(**config)`: Calls `word` and then `brk`. The word is returned.
 
 * `breakword.set_default_logger(logger)`: Set the logging function to use (defaults to `print`)
 
@@ -61,7 +65,7 @@ Here's a screenshot to show what it looks like:
 
 ### Configuration
 
-`log`, `after` and `brk` all take keyword arguments:
+`log`, `word`, `after` and `brk` all take keyword arguments:
 
 * `group`: A string that represents a "group" for the words. Each group is independent: `log(group="abc")` and `log(group="xyz")` will not interfere with each other, so you can add more `log` statements in your code without changing the words printed out by the existing logs.
   * You can also do something like: `if after("fish"): log(group="xyz")`. That statement will log extra words, but only after "fish" in the main sequence.

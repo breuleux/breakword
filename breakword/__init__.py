@@ -1,4 +1,5 @@
 
+import colorsys
 import hashlib
 import os
 import pdb
@@ -69,6 +70,26 @@ class WordGroup:
             self.current = str(self.index)
         return self.current
 
+    def rgb(self):
+        """Generate an RGB color string for this group."""
+        # We generate the color in the YIQ space first because the Y component,
+        # corresponding to brightness, is fairly accurate, so we can easily
+        # restrict it to a range that looks decent on a white background, and
+        # then convert to RGB with the standard colorsys package. The IQ
+        # components control hue and have bizarre valid ranges.
+        h = self.hash
+        # 0.3 <= Y <= 0.6
+        y = 0.3 + ((h & 0xFF) / 0xFF) * 0.4
+        h >>= 16
+        i = (((h & 0xFF) - 0x80) / 0x80) * 0.5957
+        h >>= 16
+        q = (((h & 0xFF) - 0x80) / 0x80) * 0.5226
+        r, g, b = colorsys.yiq_to_rgb(y, i, q)
+        r = int(r * 255)
+        g = int(g * 255)
+        b = int(b * 255)
+        return f'rgb({r}, {g}, {b})'
+
 
 class Logword:
     """Tool to track progress through a program on stdout."""
@@ -128,6 +149,11 @@ class Logword:
         pass
 
 
+def word(**kw):
+    """Return the next word as a string."""
+    return str(Logword(print_word=False, **kw))
+
+
 def log(*data, **kw):
     """Prints out a word along with the given data."""
     return Logword(data=data, **kw)
@@ -146,6 +172,13 @@ def after(word=None, **kw):
 def brk(word=None, **kw):
     """Activate a breakpoint after log prints out the given word."""
     after(word, **kw).breakpoint()
+
+
+def wordbrk(*args, **kwargs):
+    """Generate word, brk, return word."""
+    w = word(*args, **kwargs)
+    brk(**kwargs)
+    return w
 
 
 def logbrk(*args, **kwargs):
