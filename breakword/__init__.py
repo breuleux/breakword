@@ -1,4 +1,3 @@
-
 import colorsys
 import hashlib
 import os
@@ -23,17 +22,16 @@ def file_source(filename, exclude=set()):
 
     One word per line. Words in the exclude set are removed from the list.
     """
+
     def make():
         if filename not in _acquired:
             if not os.path.exists(filename):
                 return []
-            words = {
-                word.lower()
-                for word in open(filename).read().split('\n')
-            }
+            words = {word.lower() for word in open(filename).read().split("\n")}
             words -= set(exclude)
             _acquired[filename] = list(sorted(words))
         return list(_acquired[filename])
+
     return make
 
 
@@ -88,7 +86,7 @@ class WordGroup:
         r = int(r * 255)
         g = int(g * 255)
         b = int(b * 255)
-        return f'rgb({r}, {g}, {b})'
+        return f"rgb({r}, {g}, {b})"
 
 
 class Logword:
@@ -96,22 +94,24 @@ class Logword:
 
     _groups = {}
 
-    def __init__(self,
-                 watch=None,
-                 gen=True,
-                 nowatch_log=False,
-                 print_word=True,
-                 group='',
-                 logger=None,
-                 data=[]):
+    def __init__(
+        self,
+        watch=None,
+        gen=True,
+        nowatch_log=False,
+        print_word=True,
+        group="",
+        logger=None,
+        data=[],
+    ):
         self.data = data if isinstance(data, (list, tuple)) else [data]
         if group not in Logword._groups:
             Logword._groups[group] = WordGroup(
                 name=group,
                 sources=[
                     common_words_source,
-                    file_source('/usr/share/dict/words', exclude=common_words),
-                ]
+                    file_source("/usr/share/dict/words", exclude=common_words),
+                ],
             )
         self.group = Logword._groups[group]
         self.watch = watch
@@ -124,7 +124,7 @@ class Logword:
 
     def breakpoint(self):
         if self.active:
-            pdb.Pdb(skip=['breakword']).set_trace()
+            pdb.Pdb(skip=["breakword"]).set_trace()
 
     def log(self, *objs, force=False):
         if force or self.active:
@@ -134,13 +134,15 @@ class Logword:
         return self.active
 
     def __str__(self):
-        gname = f'{self.group.name}:' if self.group.name else ''
+        gname = f"{self.group.name}:" if self.group.name else ""
         color = 30 + (self.group.hash % 8)
-        return f'\033[1;{color};40m⏎ {gname}{self.word}\033[0m'
+        return f"\033[1;{color};40m⏎ {gname}{self.word}\033[0m"
 
     def __hrepr__(self, H, hrepr):
-        return H.div(f'⏎ {self.group.name}:{self.word}',
-                     style=f'color:{self.group.rgb()};font-weight:bold;')
+        return H.div(
+            f"⏎ {self.group.name}:{self.word}",
+            style=f"color:{self.group.rgb()};font-weight:bold;",
+        )
 
     def __enter__(self):
         return self
@@ -162,10 +164,10 @@ def log(*data, **kw):
 def after(word=None, **kw):
     """True after log prints out the given word."""
     if word is None:
-        word = os.environ.get('BREAKWORD')
-    if word is not None and ':' in word:
-        group, word = word.split(':')
-        kw['group'] = group
+        word = os.environ.get("BREAKWORD")
+    if word is not None and ":" in word:
+        group, word = word.split(":")
+        kw["group"] = group
     return Logword(watch=word, gen=False, print_word=False, **kw)
 
 
