@@ -5,6 +5,7 @@ description = "Mixing breakpoints with print debugging."
 authors = ["Olivier Breuleux <breuleux@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/breuleux/breakword"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",

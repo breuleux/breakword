@@ -1,26 +1,8 @@
+#!/usr/bin/env PYTHONBREAKPOINT=breakword.breakpoint python3
 
-def lfsr_hash(state):
-    result = 0
-    for i in range(32):
-        bit = ((state >> 0) ^ (state >> 2)
-               ^ (state >> 3) ^ (state >> 5)) & 1
-        state = (state >> 1) | (bit << 15)
-        result = (result << 1) | bit
-    return result
+# To run this program properly, the PYTHONBREAKPOINT environment
+# variable must be set to breakword.breakpoint
 
-
-def myhash(word):
-    h = 0
-    for letter in word:
-        h = h ^ ord(letter)
-    return lfsr_hash(h)
-
-
-phrase = "No shenanigans during office hours"
-
-
-if __name__ == '__main__':
-    for w in phrase.split():
-        breakpoint()
-        h = myhash(w)
-        print(w, h)
+if __name__ == "__main__":
+    for i in range(5):
+        breakpoint(i)

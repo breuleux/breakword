@@ -1,56 +1,69 @@
 
 # breakword
 
+`breakword` is a small debugging utility that combines print debugging with breakpoint debugging. It aims to facilitate debugging the kind of problem where you might use print statements to quickly spot where something seems to be off, and then switch to a step by step debugger.
 
-## A description of the problem
-
-Let's say you have a bug somewhere in your code, but it doesn't raise an exception and you're not entirely sure where things went wrong, so you start peppering your code with print statements in order to get an idea of what's going on.
-
-At some point you see something wrong. You would like to investigate closer.
-
-However, it seems to happen on the 174th iteration of some loop, and you're not entirely sure how to make a breakpoint that triggers right where something went wrong, and not before. It's not clear what condition to write for the breakpoint. You don't know what to do except print more stuff.
-
-Now, what if you had two commands:
-
-* `breakword.log()`, a function to print some easily identifiable word.
-* `breakword.brk(word)`, a function to break after some word has been printed.
-
-Then you'd just run the script once, see that something happens after the word `potato`, and then you'd set a breakpoint to trigger after that word, and run the script again (hopefully your script is deterministic -- if it isn't, only God can help you).
-
-That's basically what this library does.
+`breakword` normally requires running your program twice and will only work properly if it is deterministic.
 
 
-## Least-effort API
+## How to use
 
-The `PYTHONBREAKPOINT` environment variable tells Python what to call when it sees `breakpoint()`. You can set it to `breakword.logbrk` to get some magic.
+1. Set the `PYTHONBREAKPOINT` environment variable to `breakword.breakpoint`.
 
-The `BREAKWORD` environment variable tells `breakword` which word to break on. If not set, no breakpoints will be entered unless explicitly specified in the Python code.
+2. Use `breakpoint` like a `print` statement:
 
-Basically, do this:
-
-```bash
-# Install the library
-pip install breakword
-# Run the script without entering a breakpoint
-env PYTHONBREAKPOINT=breakword.logbrk python yourscript.py
-# Run the script and break on the word "fish"
-env PYTHONBREAKPOINT=breakword.logbrk BREAKWORD=fish python yourscript.py
+```python
+for i in range(10):
+    breakpoint(i)
 ```
 
-Here's a screenshot to show what it looks like:
+This will print out something like this:
+
+```
+$ python example.py
+⏎ standard 0
+⏎ sound 1
+⏎ character 2
+⏎ thank 3
+⏎ play 4
+⏎ however 5
+⏎ fish 6
+⏎ cultural 7
+⏎ either 8
+⏎ and 9
+```
+
+3. Use the `BREAKWORD` environment variable to set a breakpoint to what you want to investigate further. For instance, if you want to stop when `i == 6` in the above program, you can run the following command:
+
+
+```
+$ env BREAKWORD=fish python example.py
+⏎ standard 0
+⏎ sound 1
+⏎ character 2
+⏎ thank 3
+⏎ play 4
+⏎ however 5
+⏎ fish 6
+> example.py(2)<module>()
+-> for i in range(10):
+(Pdb) i
+6
+```
+
+**Note:** `breakpoint()` with no arguments retains the normal behavior.
 
 ![demo](https://raw.githubusercontent.com/breuleux/breakword/master/media/demo.png)
 
 
-## Marginally-more-effort API
-
+## More functions
 
 * `breakword.log(*things, **config)`: Print a word and optionally other things after it.
 
-* `breakword.brk(word=None, **config)`: Sets a breakpoint to trigger after `log` printed out the given word. If `word` is `None` or not given, the `BREAKWORD` environment variable is consulted. If the variable is not set, nothing will happen.
+* `breakword.brk(watch=None, **config)`: Sets a breakpoint to trigger after `log` printed out the given word. If `watch` is `None` or not given, the `BREAKWORD` environment variable is consulted. If the variable is not set, nothing will happen.
   * This is equivalent to `breakword.after(word).breakpoint()`.
 
-* `breakword.after(word=None, **config)`: Returns an object that evaluates to `True` right after `log` printed out the given word. As with `brk`, if `word` is `None` or not given, the `BREAKWORD` environment variable is consulted.
+* `breakword.after(watch=None, **config)`: Returns an object that evaluates to `True` right after `log` printed out the given watch word. As with `brk`, if `watch` is `None` or not given, the `BREAKWORD` environment variable is consulted.
 
 * `breakword.word(**config)`: Returns the next word as a string. You can print it yourself, in which case it's basically like `log`, or you can store it in an object.
 
@@ -60,15 +73,27 @@ Here's a screenshot to show what it looks like:
 
 * `breakword.set_default_logger(logger)`: Set the logging function to use (defaults to `print`)
 
-![demo](https://raw.githubusercontent.com/breuleux/breakword/master/media/demo2.png)
+
+## Groups
+
+Use `breakword.groups.<name>` to get a "word group" with the given name. Each group generates words independently and will therefore not interfere with each other. They have `log`, `brk`, `after`, `word`, etc. as methods. The default group is `groups[""]`.
 
 
-### Configuration
+```python
+from breakword import groups
 
-`log`, `word`, `after` and `brk` all take keyword arguments:
+assert groups.aardvark == groups["aardvark"]
 
-* `group`: A string that represents a "group" for the words. Each group is independent: `log(group="abc")` and `log(group="xyz")` will not interfere with each other, so you can add more `log` statements in your code without changing the words printed out by the existing logs.
-  * You can also do something like: `if after("fish"): log(group="xyz")`. That statement will log extra words, but only after "fish" in the main sequence.
-  * Different groups will (probably) have different colors, to help telling them apart.
+# Log "a" in the aardvark group
+groups.aardvark.log("a")
 
-* `logger` The logger to use. Defaults to the default logger, which is `print`.
+# Log "b" in the pelican group
+groups.pelican.log("b")
+
+# Get the next word in the pelican group
+word = groups.pelican.word()
+
+# Conditional behavior to perform only after the word "cherry"
+if groups.pelican.after("cherry"):
+    print("blah")
+```
