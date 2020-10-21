@@ -197,6 +197,30 @@ class BreakwordState:
         return f"\033[1;{color};40m⏎ {gname}{self.word}\033[0m"
 
 
+def _get_watch(group, watch):
+    def parse(w):
+        if w is not None and ":" in w:
+            g, w = w.split(":")
+            g = groups[g]
+            if g != group:
+                return None
+            return w
+        else:
+            return w
+
+    if watch is None:
+        watch = os.environ.get("BREAKWORD")
+
+    if watch is None:
+        watch = []
+
+    if isinstance(watch, str):
+        watch = watch.split(",")
+
+    results = [w for w in [parse(w) for w in watch] if w is not None]
+    return results
+
+
 def breakword(group=None, gen=True, watch=None, **kwargs):
     """Generate a word in the given group and return a BreakwordState.
 
@@ -206,27 +230,14 @@ def breakword(group=None, gen=True, watch=None, **kwargs):
         gen: Whether to generate a new word or reuse the last one (defaults
             to True).
         watch: A word or "group:word" expression representing a word to
-            watch for. If None, no word is watched.
+            watch for. If None, no word is watched. Can also be a list.
     """
-    if watch is None:
-        watch = os.environ.get("BREAKWORD")
-
     if group is None:
-        group = ""
+        group = groups[""]
 
-    if isinstance(group, str):
-        group = groups[group]
-
-    if watch is not None and ":" in watch:
-        group2, watch = watch.split(":")
-        group2 = groups[group2]
-        if group is None:
-            group = group2
-        elif group != group2:
-            watch = None
-
+    watch = _get_watch(group, watch)
     word = group.gen() if gen else group.current
-    match = word is not None and watch == word
+    match = word is not None and word in watch
     return BreakwordState(group, word, match, **kwargs)
 
 

@@ -51,6 +51,8 @@ $ env BREAKWORD=fish python example.py
 6
 ```
 
+You can also give a comma-separated list of words, e.g. `BREAKWORD=sound,fish`.
+
 **Note:** `breakpoint()` with no arguments retains the normal behavior.
 
 ![demo](https://raw.githubusercontent.com/breuleux/breakword/master/media/demo.png)
