@@ -74,6 +74,13 @@ $ env BREAKWORD=fish python example.py
 * `breakword.set_default_logger(logger)`: Set the logging function to use (defaults to `print`)
 
 
+## Tracking objects
+
+* `breakword.track(obj, all=False)` will set the `breakword` attribute in the object to the next word in the list. By setting the `BREAKWORD` environment variable, you will set a breakpoint to the corresponding call to `track`. Set the `all` argument to `True` and the attribute will contain a list. Note: this will not work if `obj` is an integer or string, in those cases track will print a warning.
+
+* `breakword.track_creation(*classes)` will set the `breakword` attribute on all instances of the given classes, when they are created. That way, you can set a breakpoint back to the creation of some object of interest.
+
+
 ## Groups
 
 Use `breakword.groups.<name>` to get a "word group" with the given name. Each group generates words independently and will therefore not interfere with each other. They have `log`, `brk`, `after`, `word`, etc. as methods. The default group is `groups[""]`.

@@ -5,6 +5,7 @@ import hashlib
 import os
 import pdb
 import random
+import warnings
 
 from .common_words import common_words, common_words_source
 
@@ -275,20 +276,20 @@ def breakpoint(*args, **kwargs):
         _breakpoint()
 
 
-def _track(cls, method, wordfn):
+def _track(cls, method, field, wordfn):
     m = getattr(cls, method)
 
     @functools.wraps(m)
     def new_method(self, *args, **kwargs):
         result = m(self, *args, **kwargs)
-        self.breakword = wordfn()
+        setattr(self, field, wordfn())
         return result
 
     setattr(cls, method, new_method)
     return cls
 
 
-def track_creation(*classes, function=wordbrk, **kwargs):
+def track_creation(*classes, function=wordbrk, field="breakword", **kwargs):
     """Track instances of the given classes.
 
     The __init__ of each class is modified to also set the breakword field
@@ -296,5 +297,32 @@ def track_creation(*classes, function=wordbrk, **kwargs):
     set a breakpoint to where the instance was created.
     """
     for cls in classes:
-        _track(cls, "__init__", lambda: function(**kwargs))
+        _track(
+            cls,
+            method="__init__",
+            field=field,
+            wordfn=lambda: function(**kwargs),
+        )
     return cls
+
+
+def track(obj, function=wordbrk, field="breakword", all=False, **kwargs):
+    """Return the object, but track it with the `breakword` attribute."""
+    word = function(**kwargs)
+    try:
+        if all:
+            li = getattr(obj, field, [])
+            if isinstance(li, list):
+                li.append(word)
+            else:
+                warnings.warn(
+                    f"breakword.track was unable to accumulate words into object.{field} because that field is already used"
+                )
+            setattr(obj, field, li)
+        else:
+            setattr(obj, field, word)
+    except AttributeError:
+        warnings.warn(
+            f"breakword.track cannot track object of type {type(obj)}"
+        )
+    return obj
