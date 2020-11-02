@@ -234,6 +234,8 @@ def breakword(group=None, gen=True, watch=None, **kwargs):
     """
     if group is None:
         group = groups[""]
+    elif isinstance(group, str):
+        group = getattr(groups, group)
 
     watch = _get_watch(group, watch)
     word = group.gen() if gen else group.current
