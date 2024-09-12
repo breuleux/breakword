@@ -1,6 +1,6 @@
 [project]
 name = "breakword"
-version = "0.3.1"
+version = "0.3.2"
 description = "Mixing breakpoints with print debugging."
 authors = [
     { name = "Olivier Breuleux", email = "breuleux@gmail.com" }
