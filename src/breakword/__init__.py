@@ -335,7 +335,5 @@ def track(obj, function=wordbrk, field="breakword", all=False, **kwargs):
         else:
             setattr(obj, field, word)
     except AttributeError:
-        warnings.warn(
-            f"breakword.track cannot track object of type {type(obj)}"
-        )
+        warnings.warn(f"breakword.track cannot track object of type {type(obj)}")
     return obj

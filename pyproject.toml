@@ -1,11 +1,12 @@
-[tool.poetry]
+[project]
 name = "breakword"
 version = "0.3.1"
 description = "Mixing breakpoints with print debugging."
-authors = ["Olivier Breuleux <breuleux@gmail.com>"]
-license = "MIT"
+authors = [
+    { name = "Olivier Breuleux", email = "breuleux@gmail.com" }
+]
 readme = "README.md"
-repository = "https://github.com/breuleux/breakword"
+requires-python = ">=3.7"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -13,16 +14,12 @@ classifiers = [
     "Topic :: Software Development :: Debuggers",
 ]
 keywords = ["debug", "breakpoint", "print"]
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.7"
-
-[tool.poetry.dev-dependencies]
-black = "^19.3b0"
-
-[tool.black]
-line-length = 80
+[project.urls]
+Repository = "https://github.com/breuleux/breakword"
+Homepage = "https://github.com/breuleux/breakword"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
